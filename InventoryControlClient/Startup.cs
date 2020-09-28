@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
 using InventoryControlClient.Data;
+using InventoryControlClient.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -32,6 +33,8 @@ namespace InventoryControlClient
 
             JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
+            var oidcSetting = new OidcSetting();
+            Configuration.GetSection("OidcSettings").Bind(oidcSetting);
             services.AddAuthentication(options =>
                 {
                     options.DefaultScheme = "Cookies";
@@ -40,11 +43,11 @@ namespace InventoryControlClient
                 .AddCookie("Cookies")
                 .AddOpenIdConnect("oidc", options =>
                 {
-                    options.Authority = "http://localhost:5000";
+                    options.Authority = oidcSetting.Authority;
                     options.RequireHttpsMetadata = false;
 
-                    options.ClientId = "inventory";
-                    options.ClientSecret = "secret";
+                    options.ClientId = oidcSetting.ClientId;
+                    options.ClientSecret = oidcSetting.ClientSecret;
                     options.ResponseType = "code";
 
                     options.SaveTokens = true;
