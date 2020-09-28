@@ -1,27 +1,25 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using InventoryControlClient.Data;
 using InventoryControlClient.Extensions;
 using InventoryControlClient.Models;
+using InventoryControlClient.Services;
 
 namespace InventoryControlClient.Controllers
 {
     public class ProductsController : Controller
     {
-        private readonly InventoryDbContext _context;
+        private readonly IProductService _productServices;
 
-        public ProductsController(InventoryDbContext context)
+        public ProductsController(IProductService productServices)
         {
-            _context = context;
+            _productServices = productServices;
         }
 
         // GET: Products
         public async Task<IActionResult> Index()
         {
-            var products = await _context.Product.Include(p => p.Stocks).ToListAsync();
+            var products = await _productServices.GetProducts();
             var productViewModels = products.Select(p=>p.ToViewModel()).ToList();
             return View(productViewModels);
         }
@@ -34,8 +32,7 @@ namespace InventoryControlClient.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Product.Include(p=>p.Stocks)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var product = await _productServices.GetProductById(id.Value);
             if (product == null)
             {
                 return NotFound();
@@ -59,11 +56,8 @@ namespace InventoryControlClient.Controllers
         {
             if (ModelState.IsValid)
             {
-                product.CreatedOn = DateTime.Now;
-                _context.Add(product);
-                _context.Add(new Stock {Product = product, CreatedOn = DateTime.Now});
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Create", "Stocks", new {productId = product.Id});
+                var createdProductId = await _productServices.CreateProduct(product);
+                return RedirectToAction("Create", "Stocks", new {productId = createdProductId });
             }
             return View(product);
         }
@@ -76,7 +70,7 @@ namespace InventoryControlClient.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Product.FindAsync(id);
+            var product = await _productServices.GetProductById(id.Value);
             if (product == null)
             {
                 return NotFound();
@@ -98,23 +92,7 @@ namespace InventoryControlClient.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    product.LastUpdatedOn = DateTime.Now;
-                    _context.Update(product);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProductExists(product.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await _productServices.UpdateProduct(product);
                 return RedirectToAction(nameof(Index));
             }
             return View(product);
@@ -128,8 +106,7 @@ namespace InventoryControlClient.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Product
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var product = await _productServices.GetProductById(id.Value);
             if (product == null)
             {
                 return NotFound();
@@ -143,15 +120,8 @@ namespace InventoryControlClient.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var product = await _context.Product.FindAsync(id);
-            _context.Product.Remove(product);
-            await _context.SaveChangesAsync();
+            await _productServices.DeleteProduct(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool ProductExists(int id)
-        {
-            return _context.Product.Any(e => e.Id == id);
         }
     }
 }

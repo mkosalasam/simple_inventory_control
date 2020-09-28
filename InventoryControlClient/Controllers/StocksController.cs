@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using InventoryControlClient.Data;
 using InventoryControlClient.Models;
+using InventoryControlClient.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,11 +11,11 @@ namespace InventoryControlClient.Controllers
 {
     public class StocksController : Controller
     {
-        private readonly InventoryDbContext _context;
+        private readonly IStockService _stockService;
 
-        public StocksController(InventoryDbContext context)
+        public StocksController(IStockService stockService)
         {
-            _context = context;
+            _stockService = stockService;
         }
 
         public async Task<IActionResult> Create([FromQuery]int? productId)
@@ -24,9 +25,7 @@ namespace InventoryControlClient.Controllers
                 return NotFound();
             }
 
-            var stock = await _context.Stock.Include(s => s.Product)
-                .Where(s=>s.ProductId == productId)
-                .OrderBy(s => s.CreatedOn).LastOrDefaultAsync();
+            var stock = await _stockService.GetStockByProductId(productId.Value);
 
             if (stock == null)
             {
@@ -41,9 +40,7 @@ namespace InventoryControlClient.Controllers
         {
             if (ModelState.IsValid)
             {
-                stock.CreatedOn = DateTime.Now;
-                _context.Add(stock);
-                await _context.SaveChangesAsync();
+                await _stockService.CreateStock(stock);
                 return RedirectToAction("index","Products");
             }
             return View(stock);

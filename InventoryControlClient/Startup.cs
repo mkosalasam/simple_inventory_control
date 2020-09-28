@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using InventoryControlClient.Data;
+using InventoryControlClient.Services;
 using InventoryControlClient.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -47,10 +48,9 @@ namespace InventoryControlClient
 
                     options.SaveTokens = true;
                 });
-            //services.AddAuthorization(options =>
-            //{
-            //    options.AddPolicy("CreatorOnly", policy => policy.RequireClaim("creator"));
-            //});
+
+            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IStockService, StockService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
