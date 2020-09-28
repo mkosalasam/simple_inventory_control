@@ -1,4 +1,4 @@
-﻿@model IEnumerable<InventoryControlClient.ViewModels.ProductViewModel>
+﻿@model IEnumerable<InventoryControlClient.Models.Product>
 
 @{
     ViewData["Title"] = "Index";
@@ -17,7 +17,7 @@
                 @Html.DisplayNameFor(model => model.Name)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Quantity)
+                @Html.DisplayNameFor(model => model.CurrentQuantity)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.ReOrderLevel)
@@ -35,16 +35,16 @@
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
             <td>
-                @if (item.ReOrderLevel >= item.Quantity)
+                @if (item.ReOrderLevel >= item.CurrentQuantity)
                 {
                     <span class="badge badge-danger">
-                        @Html.DisplayFor(modelItem => item.Quantity)
+                        @Html.DisplayFor(modelItem => item.CurrentQuantity)
                     </span>
                 }
                 else
                 {
                     <span class="badge badge-success">
-                        @Html.DisplayFor(modelItem => item.Quantity)
+                        @Html.DisplayFor(modelItem => item.CurrentQuantity)
                     </span>
                 }
             </td>

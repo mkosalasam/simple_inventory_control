@@ -1,7 +1,5 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using InventoryControlClient.Extensions;
 using InventoryControlClient.Models;
 using InventoryControlClient.Services;
 
@@ -20,8 +18,7 @@ namespace InventoryControlClient.Controllers
         public async Task<IActionResult> Index()
         {
             var products = await _productServices.GetProducts();
-            var productViewModels = products.Select(p=>p.ToViewModel()).ToList();
-            return View(productViewModels);
+            return View(products);
         }
 
         // GET: Products/Details/5
@@ -38,7 +35,7 @@ namespace InventoryControlClient.Controllers
                 return NotFound();
             }
 
-            return View(product.ToViewModel());
+            return View(product);
         }
 
         // GET: Products/Create
@@ -48,8 +45,6 @@ namespace InventoryControlClient.Controllers
         }
 
         // POST: Products/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,ReOrderLevel,UnitPrice")] Product product)
@@ -79,11 +74,9 @@ namespace InventoryControlClient.Controllers
         }
 
         // POST: Products/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,ReOrderLevel,UnitPrice")] Product product)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,ReOrderLevel,UnitPrice,CurrentQuantity")] Product product)
         {
             if (id != product.Id)
             {

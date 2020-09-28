@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using InventoryControlClient.Data;
@@ -25,6 +24,13 @@ namespace InventoryControlClient.Services
 
         public Task CreateStock(Stock stock)
         {
+            // Update the product Current quantity
+            var product = _context.Product.Single(p => p.Id == stock.ProductId);
+            product.CurrentQuantity = stock.Quantity;
+            product.LastUpdatedOn = DateTime.Now;
+            _context.Update(product);
+
+            // Add Stock
             stock.CreatedOn = DateTime.Now;
             _context.Add(stock);
             return _context.SaveChangesAsync();

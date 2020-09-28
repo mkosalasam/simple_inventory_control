@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using InventoryControlClient.Data;
-using InventoryControlClient.Extensions;
 using InventoryControlClient.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,9 +28,14 @@ namespace InventoryControlClient.Services
 
         public async Task<int> CreateProduct(Product product)
         {
+            // Add Product
             product.CreatedOn = DateTime.Now;
             _context.Add(product);
-            _context.Add(new Stock { Product = product, CreatedOn = DateTime.Now });
+
+            // Add 0 stock
+            var stock = new Stock {Quantity = 0, Product = product};
+            _context.Add(stock);
+
             await _context.SaveChangesAsync();
             return product.Id;
         }

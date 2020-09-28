@@ -1,4 +1,4 @@
-﻿@model InventoryControlClient.ViewModels.ProductViewModel
+﻿@model InventoryControlClient.Models.Product
 
 @{
     ViewData["Title"] = "Details";
@@ -18,10 +18,10 @@
             @Html.DisplayFor(model => model.Name)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Quantity)
+            @Html.DisplayNameFor(model => model.CurrentQuantity)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Quantity)
+            @Html.DisplayFor(model => model.CurrentQuantity)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.ReOrderLevel)
